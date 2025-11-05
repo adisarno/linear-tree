@@ -765,7 +765,8 @@ class _LinearTree(BaseEstimator):
 
         return sp.csr_matrix(indicator)
 
-  def model_to_dot(self, feature_names=None, max_depth=None, node_attr=None, graph_attr=None):
+    def model_to_dot(self, feature_names=None, max_depth=None, node_attr=None, graph_attr=None):
+        
         """Convert a fitted Linear Tree model to dot format.
         It results in ModuleNotFoundError if graphviz or pydot are not available.
         When installing graphviz make sure to add it to the system path.
@@ -831,7 +832,8 @@ class _LinearTree(BaseEstimator):
         return graph
     
     def plot_model(self, feature_names=None, max_depth=None, node_attr=None, graph_attr=None):
-        """Convert a fitted Linear Tree model to dot format and display it.
+        """
+        Convert a fitted Linear Tree model to dot format and display it.
         It results in ModuleNotFoundError if graphviz or pydot are not available.
         When installing graphviz make sure to add it to the system path.
 
