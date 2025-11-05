@@ -765,7 +765,7 @@ class _LinearTree(BaseEstimator):
 
         return sp.csr_matrix(indicator)
 
-    def model_to_dot(self, feature_names=None, max_depth=None):
+  def model_to_dot(self, feature_names=None, max_depth=None, node_attr=None, graph_attr=None):
         """Convert a fitted Linear Tree model to dot format.
         It results in ModuleNotFoundError if graphviz or pydot are not available.
         When installing graphviz make sure to add it to the system path.
@@ -787,10 +787,19 @@ class _LinearTree(BaseEstimator):
             a rectangular shape while leaf nodes have a circular one.
         """
         import pydot
-
+    
         summary = self.summary(feature_names=feature_names, max_depth=max_depth)
         graph = pydot.Dot('linear_tree', graph_type='graph')
-
+    
+        # Applica attributi globali al grafo
+        if graph_attr:
+            for k, v in graph_attr.items():
+                graph.set(k, v)
+    
+        # Applica attributi globali ai nodi
+        if node_attr:
+            graph.set_node_defaults(**node_attr)
+    
         # create nodes
         for n in summary:
             if 'col' in summary[n]:
@@ -798,32 +807,30 @@ class _LinearTree(BaseEstimator):
                     msg = "id_node: {}\n{} <= {}\nloss: {:.4f}\nsamples: {}"
                 else:
                     msg = "id_node: {}\nX[{}] <= {}\nloss: {:.4f}\nsamples: {}"
-
+    
                 msg = msg.format(
                     n, summary[n]['col'], summary[n]['th'],
                     summary[n]['loss'], summary[n]['samples']
                 )
                 graph.add_node(pydot.Node(n, label=msg, shape='rectangle'))
-
+    
                 for c in summary[n]['children']:
                     if c not in summary:
-                        graph.add_node(pydot.Node(c, label="...",
-                                                  shape='rectangle'))
-
+                        graph.add_node(pydot.Node(c, label="...", shape='rectangle'))
             else:
                 msg = "id_node: {}\nloss: {:.4f}\nsamples: {}".format(
                     n, summary[n]['loss'], summary[n]['samples'])
                 graph.add_node(pydot.Node(n, label=msg))
-
+    
         # add edges
         for n in summary:
             if 'children' in summary[n]:
                 for c in summary[n]['children']:
                     graph.add_edge(pydot.Edge(n, c))
-
+    
         return graph
-
-    def plot_model(self, feature_names=None, max_depth=None):
+    
+    def plot_model(self, feature_names=None, max_depth=None, node_attr=None, graph_attr=None):
         """Convert a fitted Linear Tree model to dot format and display it.
         It results in ModuleNotFoundError if graphviz or pydot are not available.
         When installing graphviz make sure to add it to the system path.
@@ -846,11 +853,15 @@ class _LinearTree(BaseEstimator):
         have a circular one.
         """
         from IPython.display import Image
-
-        graph = self.model_to_dot(feature_names=feature_names, max_depth=max_depth)
-
+    
+        graph = self.model_to_dot(
+            feature_names=feature_names,
+            max_depth=max_depth,
+            node_attr=node_attr,
+            graph_attr=graph_attr
+        )
+    
         return Image(graph.create_png())
-
 
 class _LinearBoosting(TransformerMixin, BaseEstimator):
     """Base class for Linear Boosting meta-estimator.
